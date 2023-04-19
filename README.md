@@ -15,5 +15,7 @@ This project is an algorithm that will find the relationships between two family
     * Graphs would likely consume more memory as opposed to a general tree
     * Graph would still look similar to a tree, but with merging branches
     * Most likely best represented by a [multitree](https://en.wikipedia.org/wiki/Multitree), although this would not account for any marriages between blood relatives
+    * Will likely choose to represent as a general tree for now, for simplicity's sake
 * Could assign a value for each member based on generation, which could be used to find generational offset of a family member
-* 
+* Could use number of hops and lowest common ancestor to find relative location
+* Would probably be best navigated by a depth-first search, since the tree is wider than it is tall and only the lowest common ancestor need be found
