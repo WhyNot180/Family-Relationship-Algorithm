@@ -1,0 +1,65 @@
+
+Create nodes that have a name, a pointer to their parent, a boolean for whether they have been marked as seen, and the number of hops to get there
+
+
+primaryTraversal(firstNode*, 0)
+
+declare int arrayOfHops = markSearch()
+
+declare int depth = arrayOfHops[0] - arrayOfHops[1]
+
+declare int partial_consanguinity = (arrayOfHops[0] + arrayOfHops[1]) - depth
+
+print name of firstNode concat with " is the ", findFullConsanguinity(partial_consanguinity, depth), " of ", name of secondNode
+
+cleanTraversal(firstNode*)
+
+function primaryTraversal(node*, traversalHops):
+
+    set hops of node to traversalHops
+    set marked to true
+
+    if parent of node is null, then return
+    else primaryTraversal(parent*, traversalHops + 1)
+
+
+function cleanTraversal(node*):
+
+    set marked to false
+
+    if parent of node is null, then return
+    else cleanTraversal(parent*)
+
+    
+function markSearch(node*, searchHops):
+
+    if node is marked, then return array containing searchHops and hops of node
+    else return markSearch(parent*, searchHops + 1)
+
+
+function findFullConsanguinity(partial_consanguinity, depth):
+
+    CASE partial_consanguinity OF:
+        0 : 
+            if depth is 0 then return "self"
+            else if depth is less than 0 then return concat findGeneration(depth) with "child"
+            else if depth is greater than 0 then return concat findGeneration(depth) with "parent"
+        2: 
+            if depth is 0 then return "sibling"
+            else if depth is less than 0 then return concat findParentOrSiblingGeneration(depth) with "nephew/niece"
+            else if depth is greater than 0 then return concat findParentOrSiblingGeneration(depth) with "uncle/aunt"
+        OTHERWISE:
+            if partial_consanguinity is greater than 2 and a multiple of 2, then:
+                declare int numberCousin = partial_consanguinity - (partial_consanguinity/2 + 1)
+                declare int timesRemoved = |depth| + numberCousin - 1
+                if timesRemoved is equal to 0, then return ordinal form of numberCousin concat with " cousin"
+                else return ordinal form of numberCousin concat with " cousin ", timesRemoved, and " times removed"
+
+
+function findGeneration(depth):
+    if |depth| is equal to 1, then return "grand"
+    else if |depth| is greater than 1:
+        declare string greats = ""
+        for depth times, concat "great " with greats
+        return greats concat with "grand"
+    else return ""
