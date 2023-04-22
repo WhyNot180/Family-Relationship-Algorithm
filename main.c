@@ -76,6 +76,21 @@ void selectMembers(relative *node_1, relative *node_2, size_t family_size) {
     }
 }
 
+void nodeTraversal(relative *node, int traversalHops) {
+    node->hops = traversalHops;
+    node->isMarked = true;
+    
+    if (node->parent == NULL) return;
+    else nodeTraversal(node->parent, traversalHops + 1);
+}
+
+int markSearch(relative *node, int *nodeHops, int searchHops) {
+    if (node->isMarked) {
+        *nodeHops = node->hops;
+        return searchHops;
+    } else return markSearch(node->parent, nodeHops, searchHops + 1);
+}
+
 int main(void) {
 
     size_t family_size = sizeof(family_tree) / sizeof(family_tree[0]);
@@ -89,6 +104,12 @@ int main(void) {
     relative second_member;
     
     selectMembers(&first_member, &second_member, family_size + 1);
+
+    int nodeHops;
+    nodeTraversal(&first_member, 0);
+    
+    int searchHops = markSearch(&second_member, &nodeHops, 0);
+    printf("nodeHops: %i \nsearchHops: %i", nodeHops, searchHops);
 
     return 0;
 }
