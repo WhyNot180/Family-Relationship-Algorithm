@@ -24,12 +24,71 @@ relative family_tree[] =
     {.name = "Alex", .parent = &family_tree[26]}
 };
 
+bool is_int(char const* s) {
+    int n;
+    int i;
+    return sscanf(s, "%d %n", &i, &n) == 1 && !s[n];
+}
+
+void selectMembers(relative *node_1, relative *node_2, size_t family_size) {
+    while (true) {
+        char input[5];
+        
+        printf("Please select a person: ");
+        int error = fgets(&input, 5, stdin);
+        
+        int value;
+        
+        if ((error != EOF && is_int(input))) {
+            sscanf(input, "%d", &value);
+            if (value < family_size && value > 0) {
+                printf("Selected: %s \n", family_tree[value - 1].name);
+                *node_1 = family_tree[value - 1];
+                break;
+            } else {
+                printf("Error: Out of bounds \n");
+            }
+        } else {
+            printf("Error: Invalid Input \n");
+        }
+    }
+    
+    while (true) {
+        char input[5];
+        
+        printf("Please select another person: ");
+        int error = fgets(&input, 5, stdin);
+        
+        int value;
+        
+        if ((error != EOF && is_int(input))) {
+            sscanf(input, "%d", &value);
+            if (value < family_size && value > 0) {
+                printf("Selected: %s", family_tree[value - 1].name);
+                *node_2 = family_tree[value - 1];
+                break;
+            } else {
+                printf("Error: Out of bounds \n");
+            }
+        } else {
+            printf("Error: Invalid Input \n");
+        }
+    }
+}
+
 int main(void) {
 
+    size_t family_size = sizeof(family_tree) / sizeof(family_tree[0]);
+
     printf("Family members: \n");
-    for(int i = 0; i < sizeof(family_tree) / sizeof(family_tree[0]); i++) {
+    for(int i = 0; i < family_size; i++) {
         printf("%i. %s \n", i + 1, family_tree[i].name);
     }
 
-    return 0
+    relative first_member;
+    relative second_member;
+    
+    selectMembers(&first_member, &second_member, family_size + 1);
+
+    return 0;
 }
