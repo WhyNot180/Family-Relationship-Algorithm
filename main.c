@@ -95,9 +95,11 @@ void findGeneration(char *generation, int depth) {
     unsigned int genDiff = abs(depth);
     if (genDiff == 1) strcat(generation, "grand");
     else if (genDiff > 1) {
-        char greats = malloc((genDiff * 13) * sizeof(char));
+        char *greats = malloc((genDiff * 13) * sizeof(char));
         for (int i = 0; i < genDiff - 1; i++) strcat(greats, "great ");
         *generation = strcat(greats, "grand");
+    } else {
+        *generation = malloc(7 * sizeof(char));
     }
 }
 
