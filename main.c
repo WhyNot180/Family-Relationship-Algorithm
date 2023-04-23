@@ -91,6 +91,44 @@ int markSearch(relative *node, int *nodeHops, int searchHops) {
     } else return markSearch(node->parent, nodeHops, searchHops + 1);
 }
 
+void findGeneration(char *generation, int depth) {
+    unsigned int genDiff = abs(depth);
+    if (genDiff == 1) strcat(generation, "grand");
+    else if (genDiff > 1) {
+        char greats = malloc((genDiff * 13) * sizeof(char));
+        for (int i = 0; i < genDiff - 1; i++) strcat(greats, "great ");
+        *generation = strcat(greats, "grand");
+    }
+}
+
+void findFullConsanguinity(int partial_consanguinity, int depth, char *return_relationship) {
+    switch (partial_consanguinity) {
+        case 0:
+            if (depth == 0) *return_relationship = "self";
+            else {
+                char *generation;
+                findGeneration(&generation, depth);
+                if (depth < 0) *return_relationship = strcat(generation, "child");
+                else if (depth > 0) *return_relationship = strcat(generation, "parent");
+            }
+            break;
+        case 2: 
+            if (depth == 0) *return_relationship = "sibling";
+            else {
+                char *generation;
+                findGeneration(&generation, depth);
+                if (depth < 0) *return_relationship = strcat(generation, "niece/nephew");
+                else if (depth > 0) *return_relationship = strcat(generation, "uncle/aunt");
+            }
+            break;
+        default:
+            if (partial_consanguinity > 2 && partial_consanguinity % 2 == 0) {
+                int cousin_number = partial_consanguinity - (partial_consanguinity/2 + 1);
+            }
+            break;
+    }
+}
+
 int main(void) {
 
     size_t family_size = sizeof(family_tree) / sizeof(family_tree[0]);
@@ -110,6 +148,10 @@ int main(void) {
     
     int searchHops = markSearch(&second_member, &nodeHops, 0);
     printf("nodeHops: %i \nsearchHops: %i", nodeHops, searchHops);
+
+    int depth = nodeHops - searchHops;
+    
+    int partial_consanguinity = (nodeHops + searchHops) - depth;
 
     return 0;
 }
