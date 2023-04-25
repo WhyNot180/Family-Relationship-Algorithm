@@ -97,6 +97,12 @@ int markSearch(relative *node, int *nodeHops, int searchHops) {
     } else return markSearch(node->parent, nodeHops, searchHops + 1);
 }
 
+void nodeCleanup(relative *node) {
+    node->isMarked = false;
+    
+    if (node->parent != nullptr) nodeCleanup(node->parent);
+}
+
 void findGeneration(char **generation, int depth) {
     unsigned int genDiff = abs(depth);
     if (genDiff == 1) {
@@ -104,7 +110,7 @@ void findGeneration(char **generation, int depth) {
     } else if (genDiff > 1) {
         char *greats = malloc((genDiff * 10 + 1) * sizeof(char));
         *generation = malloc((genDiff * 10 + 1) * sizeof(char));
-        for (int i = 0; i < genDiff - 1; i++) strcat(greats, "great ");
+        for (int i = 0; i < genDiff - 2; i++) strcat(greats, "great ");
         strcpy(*generation, strcat(greats, "grand"));
         free(greats);
     } 
@@ -178,10 +184,9 @@ int main(void) {
     selectMembers(&first_member, &second_member, family_size + 1);
     
     int nodeHops;
-    nodeTraversal(first_member, 0);
+    nodeTraversal(second_member, 0);
     
-    int searchHops = markSearch(second_member, &nodeHops, 0);
-    printf("nodeHops: %i \nsearchHops: %i\n", nodeHops, searchHops);
+    int searchHops = markSearch(first_member, &nodeHops, 0);
 
     int depth = nodeHops - searchHops;
     
@@ -191,7 +196,9 @@ int main(void) {
     
     findFullConsanguinity(partial_consanguinity, depth, &return_relationship);
     
-    printf("%s", return_relationship);
+    nodeCleanup(second_member);
+    
+    printf("%s is the %s of %s", first_member->name, return_relationship, second_member->name);
 
     return 0;
 }
