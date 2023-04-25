@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <string.h>
 
+// Makes sure it's proper null and not just 0
+#define nullptr ((void*)0)
+
 typedef struct node {
     struct node* parent;
     bool isMarked;
@@ -13,7 +16,7 @@ typedef struct node {
 //This is a nightmare
 //TODO: create a parser to parse something else and autogenerate this
 relative family_tree[] = 
-    {{.name = "Elizabeth", .parent = NULL}, {.name = "Rosanne", .parent = &family_tree[0]}, {.name = "Ruthanne", .parent = &family_tree[0]}, 
+    {{.name = "Elizabeth", .parent = nullptr}, {.name = "Rosanne", .parent = &family_tree[0]}, {.name = "Ruthanne", .parent = &family_tree[0]}, 
     {.name = "Donnie", .parent = &family_tree[0]}, {.name = "Patricia", .parent = &family_tree[0]}, {.name = "Marj", .parent = &family_tree[0]},
     {.name = "Kim", .parent = &family_tree[5]}, {.name = "Monica", .parent = &family_tree[5]}, {.name = "Martin", .parent = &family_tree[5]},
     {.name = "Gabe", .parent = &family_tree[5]}, {.name = "John", .parent = &family_tree[5]}, {.name = "Ben", .parent = &family_tree[5]},
@@ -31,20 +34,20 @@ bool is_int(char const* s) {
     return sscanf(s, "%d %n", &i, &n) == 1 && !s[n];
 }
 
-void selectMembers(relative *node_1, relative *node_2, size_t family_size) {
+void selectMembers(relative **node_1, relative **node_2, size_t family_size) {
     while (true) {
         char input[5];
         
         printf("Please select a person: ");
-        char *error = fgets(input, 5, stdin);
+        char *error = fgets(input, sizeof(input), stdin);
         
         int value;
         
-        if ((error != EOF && is_int(input))) {
+        if ((*error != 1 && is_int(input))) {
             sscanf(input, "%d", &value);
             if (value < family_size && value > 0) {
                 printf("Selected: %s \n", family_tree[value - 1].name);
-                *node_1 = family_tree[value - 1];
+                *node_1 = &family_tree[value - 1]; // Needs to be a double pointer so we do not copy and properly traverse the tree
                 break;
             } else {
                 printf("Error: Out of bounds \n");
@@ -54,21 +57,21 @@ void selectMembers(relative *node_1, relative *node_2, size_t family_size) {
         }
     }
     
+    // Same as above, should be consolidated into one thing so we conform to DRY
     while (true) {
         char input[5];
         
         printf("Please select another person: ");
-        char *error = fgets(input, 5, stdin);
-        printf("hello");
+        char *error = fgets(input, sizeof(input), stdin);
         
         int value;
         
         
-        if ((error != EOF && is_int(input))) {
+        if ((*error != 1 && is_int(input))) {
             sscanf(input, "%d", &value);
             if (value < family_size && value > 0) {
-                printf("Selected: %s", family_tree[value - 1].name);
-                *node_2 = family_tree[value - 1];
+                printf("Selected: %s\n", family_tree[value - 1].name);
+                *node_2 = &family_tree[value - 1];
                 break;
             } else {
                 printf("Error: Out of bounds \n");
@@ -84,36 +87,32 @@ void nodeTraversal(relative *node, int traversalHops) {
     node->hops = traversalHops;
     node->isMarked = true;
     
-    if (node->parent == NULL) return;
-    else nodeTraversal(node->parent, traversalHops + 1);
+    if (node->parent != nullptr) nodeTraversal(node->parent, traversalHops + 1);
 }
 
 int markSearch(relative *node, int *nodeHops, int searchHops) {
     if (node->isMarked) {
         *nodeHops = node->hops;
-        printf("%i\n", node->hops);
-        printf("%i\n", searchHops);
         return searchHops;
     } else return markSearch(node->parent, nodeHops, searchHops + 1);
 }
 
-void findGeneration(char *generation, int depth) {
+void findGeneration(char **generation, int depth) {
     unsigned int genDiff = abs(depth);
-    if (genDiff == 1) strcat(generation, "grand");
-    else if (genDiff > 1) {
-        char *greats = malloc((genDiff * 13) * sizeof(char));
-        *generation = malloc((genDiff * 13) * sizeof(char));
+    if (genDiff == 1) {
+        *generation = malloc((5 + 1) * sizeof(char));
+    } else if (genDiff > 1) {
+        char *greats = malloc((genDiff * 10 + 1) * sizeof(char));
+        *generation = malloc((genDiff * 10 + 1) * sizeof(char));
         for (int i = 0; i < genDiff - 1; i++) strcat(greats, "great ");
-        strcpy(generation, strcat(greats, "grand"));
+        strcpy(*generation, strcat(greats, "grand"));
         free(greats);
-    } else {
-        *generation = malloc(7 * sizeof(char));
-    }
+    } 
 }
 
 char *get_ordinal (char **ordinals, int value)
 {
-    value %= 100;  /* normalize values between 0-100 */
+    value %= 100;  // Normalize values between 0-100
 
     if (3 < value && value < 21)
         return ordinals[3];
@@ -130,15 +129,15 @@ char *get_ordinal (char **ordinals, int value)
     }
 }
 
-void findFullConsanguinity(int partial_consanguinity, int depth, char *return_relationship) {
+void findFullConsanguinity(int partial_consanguinity, int depth, char **return_relationship) {
     switch (partial_consanguinity) {
         case 0:
             if (depth == 0) *return_relationship = "self";
             else {
                 char *generation;
-                findGeneration(generation, depth);
-                if (depth < 0) strcpy(return_relationship, strcat(generation, "child"));
-                else if (depth > 0) strcpy(return_relationship, strcat(generation, "parent"));
+                findGeneration(&generation, depth);
+                if (depth < 0) strcpy(*return_relationship, strcat(generation, "child"));
+                else if (depth > 0) strcpy(*return_relationship, strcat(generation, "parent"));
                 free(generation);
             }
             break;
@@ -147,8 +146,8 @@ void findFullConsanguinity(int partial_consanguinity, int depth, char *return_re
             else {
                 char *generation;
                 findGeneration(&generation, depth);
-                if (depth < 0) strcpy(return_relationship, strcat(generation, "niece/nephew"));
-                else if (depth > 0) strcpy(return_relationship, strcat(generation, "uncle/aunt"));
+                if (depth < 0) strcpy(*return_relationship, strcat(generation, "niece/nephew"));
+                else if (depth > 0) strcpy(*return_relationship, strcat(generation, "uncle/aunt"));
                 free(generation);
             }
             break;
@@ -157,8 +156,8 @@ void findFullConsanguinity(int partial_consanguinity, int depth, char *return_re
                 int cousin_number = partial_consanguinity - (partial_consanguinity/2 + 1);
                 int times_removed = abs(depth);
                 char *ordinals[] = { "st", "nd", "rd", "th" };
-                if (times_removed == 0) sprintf(return_relationship, "%i%s cousin", cousin_number, get_ordinal(ordinals, cousin_number));
-                else sprintf(return_relationship, "%i%s cousin, %ix removed", cousin_number, get_ordinal(ordinals, cousin_number), times_removed);
+                if (times_removed == 0) sprintf(*return_relationship, "%i%s cousin", cousin_number, get_ordinal(ordinals, cousin_number));
+                else sprintf(*return_relationship, "%i%s cousin, %ix removed", cousin_number, get_ordinal(ordinals, cousin_number), times_removed);
             }
             break;
     }
@@ -173,24 +172,24 @@ int main(void) {
         printf("%i. %s \n", i + 1, family_tree[i].name);
     }
 
-    relative first_member;
-    relative second_member;
+    relative *first_member;
+    relative *second_member;
     
     selectMembers(&first_member, &second_member, family_size + 1);
     
     int nodeHops;
-    nodeTraversal(&first_member, 0);
+    nodeTraversal(first_member, 0);
     
-    int searchHops = markSearch(&second_member, &nodeHops, 0);
-    printf("nodeHops: %i \nsearchHops: %i", nodeHops, searchHops);
+    int searchHops = markSearch(second_member, &nodeHops, 0);
+    printf("nodeHops: %i \nsearchHops: %i\n", nodeHops, searchHops);
 
     int depth = nodeHops - searchHops;
     
-    int partial_consanguinity = (nodeHops + searchHops) - depth;
+    int partial_consanguinity = (nodeHops + searchHops) - abs(depth);
     
-    char return_relationship[29];
+    char *return_relationship = malloc(29 * sizeof(char));
     
-    findFullConsanguinity(partial_consanguinity, depth, return_relationship);
+    findFullConsanguinity(partial_consanguinity, depth, &return_relationship);
     
     printf("%s", return_relationship);
 
