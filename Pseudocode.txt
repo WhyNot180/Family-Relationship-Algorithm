@@ -1,65 +1,67 @@
 
-Create nodes that have a name, a pointer to their parent, a boolean for whether they have been marked as seen, and the number of hops to get there
+START
+
+    Create nodes that have a name, a pointer to their parent, a boolean for whether they have been marked as seen, and the number of hops to get there
+
+    primaryTraversal(secondNode*, 0)
+
+    markSearch(firstNode*, 0)
+
+    INT depth = traversalHops - searchHops
+
+    INT partial_consanguinity = (traversalHops + searchHops) - |depth|
+
+    PRINT name of firstNode concatenated with " is the ", findFullConsanguinity(partial_consanguinity, depth), " of ", name of secondNode
+
+    cleanTraversal(firstNode*)
+
+END
+
+FUNCTION primaryTraversal(node*, traversalHops):
+
+    SET hops OF node TO traversalHops
+    SET marked TO true
+
+    IF parent OF node IS NULL, THEN RETURN
+    ELSE primaryTraversal(parent*, traversalHops + 1)
 
 
-primaryTraversal(firstNode*, 0)
+FUNCTION cleanTraversal(node*):
 
-declare int arrayOfHops = markSearch()
+    SET marked TO false
 
-declare int depth = arrayOfHops[0] - arrayOfHops[1]
-
-declare int partial_consanguinity = (arrayOfHops[0] + arrayOfHops[1]) - depth
-
-print name of firstNode concat with " is the ", findFullConsanguinity(partial_consanguinity, depth), " of ", name of secondNode
-
-cleanTraversal(firstNode*)
-
-function primaryTraversal(node*, traversalHops):
-
-    set hops of node to traversalHops
-    set marked to true
-
-    if parent of node is null, then return
-    else primaryTraversal(parent*, traversalHops + 1)
-
-
-function cleanTraversal(node*):
-
-    set marked to false
-
-    if parent of node is null, then return
-    else cleanTraversal(parent*)
+    IF parent OF node IS NULL, THEN RETURN
+    ELSE cleanTraversal(parent*)
 
     
-function markSearch(node*, searchHops):
+FUNCTION markSearch(node*, searchHops):
 
-    if node is marked, then return array containing searchHops and hops of node
-    else return markSearch(parent*, searchHops + 1)
+    IF node IS marked, THEN RETURN searchHops AS WELL AS hops OF node
+    ELSE RETURN markSearch(parent*, searchHops + 1)
 
 
-function findFullConsanguinity(partial_consanguinity, depth):
+FUNCTION findFullConsanguinity(partial_consanguinity, depth):
 
     CASE partial_consanguinity OF:
         0 : 
-            if depth is 0 then return "self"
-            else if depth is less than 0 then return concat findGeneration(depth) with "child"
-            else if depth is greater than 0 then return concat findGeneration(depth) with "parent"
+            IF depth IS 0 THEN RETURN "self"
+            ELSE IF depth IS < 0 THEN RETURN findGeneration(depth) concat with "child"
+            ELSE IF depth IS > 0 THEN RETURN findGeneration(depth) concat with "parent"
         2: 
-            if depth is 0 then return "sibling"
-            else if depth is less than 0 then return concat findParentOrSiblingGeneration(depth) with "nephew/niece"
-            else if depth is greater than 0 then return concat findParentOrSiblingGeneration(depth) with "uncle/aunt"
+            IF depth IS 0 THEN RETURN "sibling"
+            ELSE IF depth IS < 0 THEN RETURN findParentOrSiblingGeneration(depth) concat with "nephew/niece"
+            ELSE IF depth IS > 0 THEN RETURN findParentOrSiblingGeneration(depth) concat with "uncle/aunt"
         OTHERWISE:
-            if partial_consanguinity is greater than 2 and a multiple of 2, then:
-                declare int numberCousin = partial_consanguinity - (partial_consanguinity/2 + 1)
-                declare int timesRemoved = |depth| + numberCousin - 1
-                if timesRemoved is equal to 0, then return ordinal form of numberCousin concat with " cousin"
-                else return ordinal form of numberCousin concat with " cousin ", timesRemoved, and " times removed"
+            IF partial_consanguinity IS < 2 AND A MULTIPLE OF 2, THEN:
+                INT numberCousin = partial_consanguinity - (partial_consanguinity/2 + 1)
+                INT timesRemoved = |depth| + numberCousin - 1
+                IF timesRemoved IS == 0, THEN RETURN ORDINAL FORM OF numberCousin concat with " cousin"
+                ELSE RETURN ORDINAL FORM OF numberCousin concat with " cousin ", timesRemoved, and " times removed"
 
 
-function findGeneration(depth):
-    if |depth| is equal to 1, then return "grand"
-    else if |depth| is greater than 1:
-        declare string greats = ""
-        for depth times, concat "great " with greats
-        return greats concat with "grand"
-    else return ""
+FUNCTION findGeneration(depth):
+    IF |depth| IS == 1, THEN RETURN "grand"
+    ELSE IF |depth| IS GREATER THAN 1:
+        STRING greats = ""
+        FOR depth TIMES, concat "great " with greats
+        RETURN greats concat with "grand"
