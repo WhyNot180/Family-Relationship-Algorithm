@@ -59,9 +59,14 @@ In summary:
 ## Future Improvements
 ---
 
-* It may be possible to convert the tree into an upside down binary search tree, which would account for two parents
-    * Technically not a true binary search tree, since it has multiple root nodes
-        * Likely better represented by a [multitree](https://en.wikipedia.org/wiki/Multitree)
-    * Still doesn't quite solve the problem of inbreeding
-    * Would not work for in law relationships
-    * Still gets stuck if the height is infinite
+### Family Forest
+
+There is a way to search for relationships across multiple family trees, however, it can take quite a lot of memory.
+
+When I say multiple family trees, I mean the family trees of every single node in every single tree.
+
+For example, take a look at this family tree:
+
+![family shrub](images/Family%20Shrub.png)
+
+If someone wanted to figure out what the relationship between Ethan and Raymond were, with the current algorithm, it would have to traverse through each and every part of the family tree. However, if we were to assign a sort of inherited ID, it would be able to traverse through the correct path towards a common ancestor.
