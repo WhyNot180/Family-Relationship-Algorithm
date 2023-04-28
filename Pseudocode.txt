@@ -9,7 +9,7 @@ START
 
     INT depth = traversalHops - searchHops
 
-    INT partial_consanguinity = (traversalHops + searchHops) - |depth|
+    INT partial_consanguinity = ((traversalHops + searchHops) - |depth|) / 2
 
     PRINT name of firstNode concatenated with " is the ", findFullConsanguinity(partial_consanguinity, depth), " of ", name of secondNode
 
@@ -47,13 +47,13 @@ FUNCTION findFullConsanguinity(partial_consanguinity, depth):
             IF depth IS 0 THEN RETURN "self"
             ELSE IF depth IS < 0 THEN RETURN findGeneration(depth) concat with "child"
             ELSE IF depth IS > 0 THEN RETURN findGeneration(depth) concat with "parent"
-        2: 
+        1: 
             IF depth IS 0 THEN RETURN "sibling"
             ELSE IF depth IS < 0 THEN RETURN findParentOrSiblingGeneration(depth) concat with "nephew/niece"
             ELSE IF depth IS > 0 THEN RETURN findParentOrSiblingGeneration(depth) concat with "uncle/aunt"
         OTHERWISE:
-            IF partial_consanguinity IS < 2 AND A MULTIPLE OF 2, THEN:
-                INT numberCousin = partial_consanguinity - (partial_consanguinity/2 + 1)
+            IF partial_consanguinity IS < 1, THEN:
+                INT numberCousin = partial_consanguinity - 1
                 INT timesRemoved = |depth| + numberCousin - 1
                 IF timesRemoved IS == 0, THEN RETURN ORDINAL FORM OF numberCousin concat with " cousin"
                 ELSE RETURN ORDINAL FORM OF numberCousin concat with " cousin ", timesRemoved, and " times removed"
