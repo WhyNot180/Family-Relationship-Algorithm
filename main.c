@@ -170,7 +170,7 @@ void findFullConsanguinity(int partial_consanguinity, int depth, char **return_r
             break;
 
         // Sibling case
-        case 2: 
+        case 1: 
             if (depth == 0) *return_relationship = "sibling";
             else {
                 char *generation;
@@ -183,8 +183,8 @@ void findFullConsanguinity(int partial_consanguinity, int depth, char **return_r
 
         // Cousin cases
         default:
-            if (partial_consanguinity > 2 && partial_consanguinity % 2 == 0) {
-                int cousin_number = partial_consanguinity - (partial_consanguinity/2 + 1); // Which cousins (e.g. 1st, 2nd, 3rd etc.)
+            if (partial_consanguinity > 1) {
+                int cousin_number = partial_consanguinity - 1; // Which cousins (e.g. 1st, 2nd, 3rd etc.)
                 int times_removed = abs(depth);
                 char *ordinals[] = { "st", "nd", "rd", "th" };
                 if (times_removed == 0) sprintf(*return_relationship, "%i%s cousin", cousin_number, get_ordinal(ordinals, cousin_number));
@@ -215,7 +215,7 @@ int main(void) {
 
     int depth = nodeHops - searchHops;
     
-    int partial_consanguinity = (nodeHops + searchHops) - abs(depth);
+    int partial_consanguinity = ((nodeHops + searchHops) - abs(depth)) / 2;
     
     char *return_relationship = malloc(29 * sizeof(char));
     

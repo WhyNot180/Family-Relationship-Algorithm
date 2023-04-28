@@ -21,18 +21,18 @@ The algorithm starts by iterating through the entirety of one of the chosen peop
 
 We can then use the depth and hops to calculate the degree of consanguinity (without accounting for generational difference) between the two, such that:
 
-    (search_1_hops + search_2_hops) - |depth| = partial_consanguinity
+    ((search_1_hops + search_2_hops) - |depth|) / 2 = partial_consanguinity
 
 This results in a table of consanguinity that increments by 2:
 
 | Resulting Number | Relationship |
 | ---------------- | ------------ |
 | 0                | Parent/self  |
-| 2                | Sibling (including uncles and aunts) |
-| 4                | 1st cousin   |
-| 6                | 2nd cousin   |
-| 8                | 3rd cousin   |
-| 10               | 4th cousin   |
+| 1                | Sibling (including uncles and aunts) |
+| 2                | 1st cousin   |
+| 3                | 2nd cousin   |
+| 4                | 3rd cousin   |
+| 5                | 4th cousin   |
 | ...              | ...          |
 
 We can then use the depth to assign generation and get the full consanguinity, such as <span style="color:green">grand</span><span style="color:red">parent</span> or <span style="color:red">1st cousin </span><span style="color:green">once removed</span>.
