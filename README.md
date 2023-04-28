@@ -63,10 +63,14 @@ In summary:
 
 There is a way to search for relationships across multiple family trees, however, it can take quite a lot of memory.
 
-When I say multiple family trees, I mean the family trees of every single node in every single tree.
-
 For example, take a look at this family tree:
 
 ![family shrub](images/Family%20Shrub.png)
 
 If someone wanted to figure out what the relationship between Ethan and Raymond were, with the current algorithm, it would have to traverse through each and every part of the family tree. However, if we were to assign a sort of inherited ID, it would be able to traverse through the correct path towards a common ancestor.
+
+To achieve this, we can assign a prime number to each root node. The children can then inherit the product of their parents' IDs. This will result in a number that can be divided by the original prime numbers and no other prime numbers. 
+
+Then we need only find the common prime numbers between two nodes, afterwhich we can modulo the node's ID with one of the common primes and going down the path that always has a result of 0 from the modulo, repeating this for every node along the path.
+
+This way it can achieve a very similar time complexity to the current one. However, since the numbers are being multiplied together at each step, they grow at an enormous rate and would reach values that need more than 64 bits to represent in only a few generations. This is obviously not the most scalable way to do this, hence why it is not currently implemented.
